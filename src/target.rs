@@ -1,25 +1,25 @@
 use bevy::prelude::*;
+use bevy_xpbd_2d::plugins::collision::Collider;
 
 pub struct TargetPlugin;
 
 impl Plugin for TargetPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Target>()
-            .add_systems(Startup, spawn_basic_targets)
-            .add_systems(Update, move_targets);
+        app.add_systems(Startup, spawn_basic_targets)
+            .add_systems(Update, (move_targets, target_death));
     }
 }
 
-#[derive(Reflect, Component, Default)]
-#[reflect(Component)]
+#[derive(Component)]
 pub struct Target {
-    speed: f32,
+    pub speed: f32,
+    pub collider: Collider,
 }
 
 #[derive(Reflect, Component, Default)]
 #[reflect(Component)]
 pub struct Health {
-    value: i32,
+    pub value: i32,
 }
 
 fn spawn_basic_targets(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -31,7 +31,10 @@ fn spawn_basic_targets(mut commands: Commands, asset_server: Res<AssetServer>) {
             texture: texture.clone(),
             ..default()
         })
-        .insert(Target { speed: 30. })
+        .insert(Target {
+            speed: 30.,
+            collider: Collider::circle(16.),
+        })
         .insert(Health { value: 3 })
         .insert(Name::new("Target"));
 
@@ -41,7 +44,10 @@ fn spawn_basic_targets(mut commands: Commands, asset_server: Res<AssetServer>) {
             texture: texture.clone(),
             ..default()
         })
-        .insert(Target { speed: 30. })
+        .insert(Target {
+            speed: 30.,
+            collider: Collider::circle(16.),
+        })
         .insert(Health { value: 3 })
         .insert(Name::new("Target"));
 
@@ -51,7 +57,10 @@ fn spawn_basic_targets(mut commands: Commands, asset_server: Res<AssetServer>) {
             texture,
             ..default()
         })
-        .insert(Target { speed: 30. })
+        .insert(Target {
+            speed: 30.,
+            collider: Collider::circle(16.),
+        })
         .insert(Health { value: 3 })
         .insert(Name::new("Target"));
 }
@@ -59,5 +68,14 @@ fn spawn_basic_targets(mut commands: Commands, asset_server: Res<AssetServer>) {
 fn move_targets(mut targets: Query<(&Target, &mut Transform)>, time: Res<Time>) {
     for (target, mut transform) in &mut targets {
         transform.translation.x += target.speed * time.delta_seconds();
+    }
+}
+
+fn target_death(mut commands: Commands, targets: Query<(Entity, &Health)>) {
+    for (entity, health) in &targets {
+        if health.value <= 0 {
+            commands.entity(entity).despawn_recursive();
+            info!("Target has died");
+        }
     }
 }

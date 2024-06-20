@@ -37,10 +37,10 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         })
         .insert(Tower {
-            shooting_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
+            shooting_timer: Timer::from_seconds(0.5, TimerMode::Repeating),
             bullet_offset: Vec3 {
                 x: 0.,
-                y: 10.,
+                y: 0.,
                 z: 0.,
             },
         })

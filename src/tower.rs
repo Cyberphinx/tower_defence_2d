@@ -1,4 +1,5 @@
 use bevy::{prelude::*, utils::FloatOrd};
+use bevy_xpbd_2d::plugins::collision::Collider;
 
 use crate::{
     bullet::{Bullet, Lifetime},
@@ -38,7 +39,9 @@ fn tower_shooting(
                 .min_by_key(|target_transform| {
                     FloatOrd(Vec3::distance(target_transform.translation(), bullet_spawn))
                 })
-                .map(|closest_target| closest_target.translation() - bullet_spawn);
+                .map(|closest_target| {
+                    closest_target.translation() - bullet_spawn - Vec3::new(-25., 0., 0.)
+                });
 
             if let Some(direction) = direction {
                 let texture = asset_server.load("bullet.png");
@@ -54,7 +57,8 @@ fn tower_shooting(
                         })
                         .insert(Bullet {
                             direction,
-                            speed: 50.,
+                            speed: 200.,
+                            collider: Collider::circle(16.),
                         })
                         .insert(Name::new("Bullet"));
                 });
