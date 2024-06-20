@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use tower_defence::tower::{Tower, TowerPlugin};
+use tower_defence::{
+    bullet::BulletPlugin,
+    target::TargetPlugin,
+    tower::{Tower, TowerPlugin},
+};
 
 fn main() {
     App::new()
@@ -14,6 +18,8 @@ fn main() {
             }),
             WorldInspectorPlugin::new(),
             TowerPlugin,
+            TargetPlugin,
+            BulletPlugin,
         ))
         .add_systems(Startup, setup)
         .run();
@@ -32,6 +38,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         })
         .insert(Tower {
             shooting_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
+            bullet_offset: Vec3 {
+                x: 0.,
+                y: 10.,
+                z: 0.,
+            },
         })
         .insert(Name::new("Tower"));
 }
